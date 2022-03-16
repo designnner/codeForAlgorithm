@@ -60,3 +60,25 @@ public static void insertsort(int[] nums){
     nums[index] = value;
   }
 }
+
+//归并排序
+public static void mergesort(int[] nums ,int i,int j){
+  if(i>=j) return;
+  int mid = (i+j)/2;
+  mergesort(nums,i,mid);
+  mergesort(nums,mid+1,j);
+  
+  //使用数组记录i到j的数
+  int[] temp = new int[j-i+1];
+  for(int k = i;k<=j;k++){
+    temp[k-i] = nums[k];
+  }
+  
+  int mark1 = 0,mark2 = mid-i+1;
+  for(int k=i;k<=j;k++){
+    if(mark1==(mid-i+1)) nums[k] = temp[mark2++];
+    else if(mark2==(j-i+1)||temp[mark1]<temp[mark2]) nums[k] = temp[mark1++];
+    else nums[k] = temp[mark2++];
+  }
+
+}
