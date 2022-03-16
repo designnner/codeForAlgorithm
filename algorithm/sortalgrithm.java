@@ -82,3 +82,84 @@ public static void mergesort(int[] nums ,int i,int j){
   }
 
 }
+
+//快速排序
+public static int partition(int[] nums ,int l,int r){
+  int left =l,right=r;
+  while(left<right){
+    while(left<right&&nums[right]>=nums[l]) right--;
+    while(left<right&&nums[left]<=nums[l]) left++;
+    swap(nums,left,right);
+  }
+  swap(nums,l,left);
+  return left;
+
+}
+public static void quicksort(int[] nums ,int l,int r){
+  if(l>=r) return ;
+  int i = partition(nums,l,r);
+  quicksort(nums,l,i-1);
+  quicksort(nums,i+1,r);
+}
+
+//堆排序
+public static void maxheap(int[] nums,int size,int curr){
+  int left = curr*2+1;
+  int right = left+1;
+  int maxIndex = curr;
+  if(left<size&&nums[left]>nums[maxIndex]) maxIndex = left;
+  if(right<size&&nums[right]>nums[maxIndex]) maxIndex = right;
+  if(maxIndex!=curr){
+    swap(nums,curr,maxIndex);
+    maxheap(nums,size,maxIndex);
+  }
+
+}
+public static void buildMaxHeap(int[] nums){
+  int mid = nums.length/2;
+  for(int i=mid;i>=0;i--){
+    maxheap(nums,nums.length,i);
+  }
+}
+
+public static void heapsort(int[] nums){
+  buildMaxHeap(nums);
+  for(int i=nums.length-1;i>=1;i--){
+    swap(nums,0,i);
+    maxheap(nums,i,0);
+  }
+
+}
+
+//桶排序
+public static void bucketsort(int[] nums){
+        //计算数组中的最大值和最小值
+        int max = Integer.MIN_VALUE;
+        int min = Integer.MAX_VALUE;
+        for(int i=0;i<nums.length;i++){
+            max = Math.max(max,nums[i]);
+            min = Math.min(min,nums[i]);
+        }
+        int num = (max-min)/nums.length+1;
+        List<List<Integer>> bucket = new ArrayList<List<Integer>>(num);
+        for(int i=0;i<num;i++){
+            bucket.add(new ArrayList<Integer>());
+        }
+        for(int i=0;i<nums.length;i++){
+            int index = (nums[i]-min)/nums.length;
+            bucket.get(index).add(nums[i]);
+        }
+        for(int i=0;i<num;i++){
+            Collections.sort(bucket.get(i), new Comparator<Integer>() {
+                public int compare(Integer o1, Integer o2) {
+                    return o2-o1;
+                }
+            });
+        }
+        int index=0;
+        for(int i=0;i<num;i++){
+            for(int j=0;j<bucket.get(i).size();j++){
+                nums[index++]=bucket.get(i).get(j);
+            }
+        }
+    }
