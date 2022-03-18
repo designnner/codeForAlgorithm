@@ -19,13 +19,78 @@ uploader	上传者用户名	string
 videos	上传视频数	int
 friends	朋友数量	int
 
+
+建表：
+create table gulivideo_ori(
+    videoId string, 
+    uploader string, 
+    age int, 
+    category array<string>, 
+    length int, 
+    views int, 
+    rate float, 
+    ratings int, 
+    comments int,
+    relatedId array<string>)
+row format delimited 
+fields terminated by "\t"
+collection items terminated by "&"
+stored as textfile;
+
+create table gulivideo_user_ori(
+    uploader string,
+    videos int,
+    friends int)
+row format delimited 
+fields terminated by "\t" 
+stored as textfile;
+
+create table gulivideo_orc(
+    videoId string, 
+    uploader string, 
+    age int, 
+    category array<string>, 
+    length int, 
+    views int, 
+    rate float, 
+    ratings int, 
+    comments int,
+    relatedId array<string>)
+clustered by (uploader) into 8 buckets 
+row format delimited fields terminated by "\t" 
+collection items terminated by "&" 
+stored as orc;
+create table gulivideo_user_orc(
+    uploader string,
+    videos int,
+    friends int)
+row format delimited 
+fields terminated by "\t" 
+stored as orc;
+
 需求
 统计硅谷影音视频网站的常规指标，各种TopN指标：
 --统计视频观看数Top10
-
+select 
+    videoId, 
+    uploader, 
+    age, 
+    category, 
+    length, 
+    views, 
+    rate, 
+    ratings, 
+    comments 
+from 
+    gulivideo_orc 
+order by 
+    views 
+desc limit 
+    10;
 
 --统计视频类别热度Top10
-
+select videoId,views,category
+from gulivideo_orc lateral view explode(category) orc as category
 
 --统计视频观看数Top20所属类别
 
