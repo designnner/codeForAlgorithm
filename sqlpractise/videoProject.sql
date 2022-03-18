@@ -89,26 +89,126 @@ desc limit
     10;
 
 --统计视频类别热度Top10
-select videoId,views,category
-from gulivideo_orc lateral view explode(category) orc as category
+
+select category1,sum(views) hot
+from (select videoId,
+       views,
+       category1
+from gulivideo_orc lateral view explode(category) orc as category1)orc
+group by category1
+order by hot desc
+limit 10;
 
 --统计视频观看数Top20所属类别
+//找前20视频
+select videoId,category,views
+from gulivideo_orc
+order by views desc
+limit 20;tmp
 
+select videoId,cat
+from (select videoId,category,views
+from gulivideo_orc
+order by views desc
+limit 20)tmp lateral view explode(category) t as cat;t
+
+select cat,count(videoId) num
+from (select videoId,cat
+from (select videoId,category,views
+from gulivideo_orc
+order by views desc
+limit 20)tmp lateral view explode(category) t as cat)t
+group by cat
+order by num desc;
 
 --统计视频观看数Top50所关联视频的所属类别Rank
 
+select views,relatedId
+from gulivideo_orc
+order by views desc
+limit 50;tmp
 
+select distinct relaId
+from (select views,relatedId
+from gulivideo_orc
+order by views desc
+limit 50)tmp lateral view explode(relatedId) tp as relaId;
+
+select videoId,rel
+from gulivideo_orc lateral view explode(relatedId) t as rel;
+
+select t2.rel, count(*) num
+from (select distinct relaId
+from (select views,relatedId
+from gulivideo_orc
+order by views desc
+limit 50)tmp lateral view explode(relatedId) tp as relaId) as t1 left join (select videoId,rel
+from gulivideo_orc lateral view explode(relatedId) t as rel) as t2 on t1.relaId=t2.rel
+group by t2.rel
+order by num;
 --统计每个类别中的视频热度Top10
-
+select 
+    videoId, 
+    views
+from 
+    gulivideo_category 
+where 
+    categoryId = "Music" 
+order by 
+    views 
+desc limit
+    10;
 
 --统计每个类别中视频流量Top10
-
+select 
+    videoId,
+    views,
+    ratings 
+from 
+    gulivideo_category 
+where 
+    categoryId = "Music" 
+order by 
+    ratings 
+desc limit 
+    10;
 
 --统计上传视频最多的用户Top10以及他们上传的视频
 
-
+select 
+    t2.videoId, 
+    t2.views,
+    t2.ratings,
+    t1.videos,
+    t1.friends 
+from (
+    select 
+        * 
+    from 
+        gulivideo_user_orc 
+    order by 
+        videos desc 
+    limit 
+        10) t1 
+join 
+    gulivideo_orc t2
+on 
+    t1.uploader = t2.uploader 
+order by 
+    views desc 
+limit 
+    20;
 --统计每个类别视频观看数Top10
-
+select 
+    t1.* 
+from (
+    select 
+        videoId,
+        categoryId,
+        views,
+        row_number() over(partition by categoryId order by views desc) rank from gulivideo_category) t1 
+where 
+    rank <= 10;
 
 
 
